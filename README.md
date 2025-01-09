@@ -1,114 +1,153 @@
-# 8 Queens Problem
+# 8 Queens Problem, using Genetic Algorithms
 
-How to place 8 chess queens on a chessboard provided that the two queens do not threaten each other?
+How to place 8 chess queens on a chessboard provided that no two queens threaten each other?
 
-(2 queens must not be on the same row, column or diagonal)
+(2 queens must not be on the same row, column, or diagonal.)
 
-The 8 queens problem was first proposed by the chess player **Max Bezzel** in 1848. It was also studied by many mathematicians such as Gauss and Georg Cantor. The first solution was proposed by Franz Nauck in 1850 and also raised the "8 Queens Problem".
+The 8 Queens Problem was first proposed by the chess player **Max Bezzel** in 1848. It was later studied by mathematicians like Gauss and Georg Cantor. The first solution was presented by Franz Nauck in 1850, thus formalizing the problem.
 
-We know how much the maximum number of queens can be placed for each n x n chessboards. Neither attack the other, it is equal to n. One of the classic combinatorial problems is the eight queens problem, which is a method of placing eight queens on an 8 x 8 board, such as a chessboard, each of which **_do not conflict_** with another queen (**_they cannot attackç_**) The 8 Queens Problem has been generalized by placing _n_ queens so that the queens do not attack each other. The latest solution was found for the n = 26 value. The solution for n = 27 has not been found yet, since very high computational power is required.
+The maximum number of queens that can be placed on an *n x n* chessboard, where no two queens threaten each other, is equal to *n*. One of the classic combinatorial problems is placing eight queens on an 8 x 8 chessboard, where no two queens threaten each other (i.e., they cannot attack each other). This problem has been generalized for *n* queens, where no queens can attack each other. The latest known solution is for *n = 26*. A solution for *n = 27* has not yet been found, as it requires significant computational power.
 
-**Multiple** methods can be shown to solve the 8 Queens Problem. Some of these are Brute Force, Genetic Algorithm, Hill Climbing, Random Walk and GBF/A methods. There will be 96 different solutions in an 8x8 table.
+Multiple methods exist for solving the 8 Queens Problem, such as Brute Force, Genetic Algorithms, Hill Climbing, Random Walk, and GBF/A methods. There are 96 distinct solutions for an 8x8 chessboard.
 
-![enter image description here](https://i.ibb.co/MVxk9PM/tahta.png)
+### Chessboard Solution Example
 
-In the genetic algorithm method, a recursive method will be used, which will start from the first column at the top left, then place a queen in the second column and move it until it finds a place in the first column where the queen cannot attack.
-![enter image description here](https://i.ibb.co/tmV44w3/gorsellestirme.png)
+|   | A | B | C | D | E | F | G | H |
+|---|---|---|---|---|---|---|---|---|
+| 1 | Q |   |   |   |   |   |   |   |
+| 2 |   |   |   |   | Q |   |   |   |
+| 3 |   | Q |   |   |   |   |   |   |
+| 4 |   |   |   |   |   |   | Q |   |
+| 5 |   |   |   | Q |   |   |   |   |
+| 6 |   |   |   |   |   |   |   | Q |
+| 7 |   |   | Q |   |   |   |   |   |
+| 8 |   |   |   |   |   | Q |   |   |
 
-# Single Point Crossover
+---
 
-A waypoint is selected in the parent array. All data beyond this point in the organism array is exchanged between the two parents. Crossover points are selected with taking _Positional Bias_ into consideration.<br>
+## Single Point Crossover
 
-![enter image description here](https://i.ibb.co/brWzh2M/tekNokta.jpg)
-![enter image description here](https://i.ibb.co/6P12bMv/tek-Nokta-2.jpg)
-# Two Point Crossover
+A point is selected in the parent array. All data beyond this point in the array is swapped between the two parents. Crossover points are selected by considering **Positional Bias**.
 
-This is a special case of the N-point Crossover technique. Two points are randomly selected on the chromosomes (strandeds) and genetic material is changed at these points.
-<br>
-![enter image description here](https://i.ibb.co/hsDxMF9/2Nokta.jpg)
-![enter image description here](https://i.ibb.co/XW0c6gg/2Nokta-2.jpg)
-## Solution of 8 Queens Problem with Genetic Algorithm
+### Single Point Crossover Example
 
-First of all, the population size is found according to the board size. The initial population is randomly generated. The resulting chromosome candidates are then evaluated. After the evaluation, we move on to the next generation. The aim here is to select the ones that are considered to be the best among the chromosomes from the pool. A predetermined single point or double point cross is applied according to the user input. **Mutation** is applied to new offsprings that appear in the meantime. It is repeated until the best generation is found (i.e. the generation with queens that are not in a position to attack each other on the chessboard is detected) or until the maximum number of iterations is completed.
+#### Parent Chromosomes
+| Position | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 |
+|----------|---|---|---|---|---|---|---|---|
+| Parent A | 5 | 6 | 3 | 4 | 7 | 2 | 8 | 1 |
+| Parent B | 3 | 4 | 7 | 8 | 1 | 5 | 6 | 2 |
 
-## How to use 8 Queens?
+#### Crossover Point: 4
 
-**NumPy library is required for the program to run. It can be installed using the command ** **“pip install numpy”** ** in the terminal.** [**Detailed information can be obtained from NumPy's site.**](https://numpy.org/install/)
+- **Explanation**: The crossover point is chosen at position 4, splitting each parent chromosome into two segments: the first part is preserved, while the remaining segments are swapped between the parents. This ensures the new chromosomes inherit traits from both parents in a structured way.
 
-When the script is launched, you will be asked for the board size, crossover type (single point/double point), whether to use mutations and the maximum number of iterations that can be made.
+#### Offspring Chromosomes
+| Position | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 |
+|----------|---|---|---|---|---|---|---|---|
+| Offspring 1 | 5 | 6 | 3 | 4 | 1 | 5 | 6 | 2 |
+| Offspring 2 | 3 | 4 | 7 | 8 | 7 | 2 | 8 | 1 |
 
-Recommended values:
+---
 
-Board Size: **8**  
-Type of crossover: **1**  
-Mutation usage: **yes**  
-Maximum iterations: **2000**
+## Two Point Crossover
 
-Parameters should be given taking into account the system specifications, otherwise the process may take too long. For example, given the board size of 32 and the number of iterations high, it would not be feasible for the computer to complete the operation (with the current code) in terms of time complexity.
+This is a special case of the N-point Crossover technique. Two points are randomly selected on the chromosomes, and genetic material is exchanged at these points.
 
-Then the program will start trying to solve the 8 Queens problem by creating the first population by following the given parameters.
-![enter image description here](https://i.ibb.co/NnrDMcb/8-Vezir-Initial.jpg)
-It will print the overall Fitness value of the generations on the screen every generation and when the process is complete:
+### Two Point Crossover Example
 
-**If the problem has been solved without reaching the maximum number of iterations:**
+#### Parent Chromosomes
+| Position | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 |
+|----------|---|---|---|---|---|---|---|---|
+| Parent A | 1 | 5 | 3 | 4 | 6 | 2 | 8 | 7 |
+| Parent B | 4 | 2 | 8 | 7 | 3 | 6 | 5 | 1 |
 
-It will display the generation of queens that do not attack each other (ie, do not overlap) and the total number of iterations.
+#### Crossover Points: 3, 6
 
-**If the script couldn't solve the problem without reaching the maximum number of iterations:**
+- **Explanation**: Two points are selected at positions 3 and 6. The sections between these two points in the chromosomes are swapped. This provides additional diversity to the offspring compared to a single-point crossover, as it allows two distinct parts of the chromosome to be combined.
 
-It will display the total number of iterations.
+#### Offspring Chromosomes
+| Position | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 |
+|----------|---|---|---|---|---|---|---|---|
+| Offspring 1 | 1 | 5 | 3 | 7 | 3 | 6 | 8 | 7 |
+| Offspring 2 | 4 | 2 | 8 | 4 | 6 | 2 | 5 | 1 |
 
-You can exit the program using Enter key.
+---
 
+## Solution of 8 Queens Problem Using Genetic Algorithm
 
+1. **Population Initialization**: The population size is determined by the board size, and the initial population is generated randomly.
+2. **Evaluation**: Chromosome candidates are evaluated for fitness.
+3. **Selection**: Chromosomes with better fitness scores are selected for the next generation.
+4. **Crossover**: A single or double-point crossover (based on user input) is applied to generate offspring.
+5. **Mutation**: A mutation operator is applied to the offspring.
+6. **Iteration**: The process repeats until a generation with queens that do not attack each other is found, or the maximum number of iterations is reached.
 
-https://user-images.githubusercontent.com/105719360/171736613-f979408b-2b46-4079-9372-d757ced8b470.mp4
-
-
+---
 
 ## Experiment and Results
 
-In this study, two different techniques were experimented with. These are the **Single Point Crossover** and **Two Point Crossover** methods. It has been tried to determine which of these two techniques is more effective in solving the 8 Queens Problem using genetic algorithms.
+In this study, two different techniques were experimented with: the **Single Point Crossover** and **Two Point Crossover** methods. The goal was to determine which of these techniques is more effective in solving the 8 Queens Problem using genetic algorithms.
 
-**Conditions for the experiment:**
+### Conditions for the experiment:
+**For a choice of 8 board size:**
+- **CPU**: Intel(R) Core(TM) i5-8300H CPU @ 2.30GHz
+- **OS**: Windows 10 Pro 21H2 (Build Number 19044.1706)
+- **CPU Architecture**: 64-Bit (x86-64)
+- **Python Version**: Python 3.10
+- **Amount of RAM allocated for Python**: 12GB
+- **NumPy Library Version**: numpy-1.22.4-cp310-cp310-win_amd64.whl
 
-**For a choice of *8* board size:**
+**For a choice of 16 board size:**
+- **CPU**: AMD Ryzen 9 5950X 16-Core CPU @ 3.40GHz
+- **OS**: Windows Server 2019
+- **CPU Architecture**: 64-Bit (x86-64)
+- **Python Version**: Python 3.10
+- **Amount of RAM allocated for Python**: 3GB
+- **NumPy Library Version**: numpy-1.22.4-cp310-cp310-win_amd64.whl
 
-**CPU**: Intel(R) Core(TM) i5-8300H CPU @ 2.30GHz
+The maximum iteration value for all tests was set to 2000.  
+Mutation functionality was used in all tests.
 
-**OS**: Windows 10 Pro 21H2 (Build Numarası 19044.1706)
+---
 
-**CPU Architecture**: 64-Bit (x86-64)
+# Results:
 
-**Python Version**: Python 3.10
+## Board 8 Data
 
-**Amount of RAM allocated for Python**: 12GB
+| Trial | Crossover Type | Iteration Count |
+|-------|----------------|-----------------|
+| 1     | 1              | 157             |
+| 2     | 1              | 45              |
+| 3     | 1              | 121             |
+| 4     | 1              | 197             |
+| 5     | 1              | 241             |
+| **Average (1)** |        | **152.20**     |
+| 1     | 2              | 680             |
+| 2     | 2              | 335             |
+| 3     | 2              | 227             |
+| 4     | 2              | 433             |
+| 5     | 2              | 114             |
+| **Average (2)** |        | **357.80**     |
 
-**NumPy Library Version**: numpy-1.22.4-cp310-cp310-win_amd64.whl
+## Board 16 Data
 
-<br>
-
-**For a choice of *16* board size:**
-
-**CPU**: AMD Ryzen 9 5950X 16-Core CPU @ 3.40GHz
-
-**OS**: Windows Server 2019
-
-**CPU Architecture**: 64-Bit (x86-64)
-
-**Python Version**: Python 3.10
-
-**Amount of RAM allocated for Python**: 3GB
-
-**NumPy Library Version**: numpy-1.22.4-cp310-cp310-win_amd64.whl
-
-The maximum iteration value for all tests is 2000.
-
-Mutation feature was used in all tests.
-
-![enter image description here](https://i.ibb.co/gyv29KX/8-Vezir-Sonuclar.jpg)
+| Trial | Crossover Type | Iteration Count |
+|-------|----------------|-----------------|
+| 1     | 1              | 930             |
+| 2     | 1              | 1342            |
+| 3     | 1              | 1642            |
+| 4     | 1              | 1837            |
+| 5     | 1              | 1011            |
+| **Average (1)** |        | **1352.40**    |
+| 1     | 2              | 1903            |
+| 2     | 2              | Timeout         |
+| 3     | 2              | 1885            |
+| 4     | 2              | 1475            |
+| 5     | 2              | 1983            |
+| **Average (2)** |        | **1811.50**    |
 
 
-**As a result, it has been determined that the Single Point Crossover technique gives better results for the 8 Queens problem. To reach this result, the test was repeated at least 5 times for each type of crossover.**
+- For the **8 board size**, the **Single Point Crossover** technique yielded better results, completing the process with fewer iterations and higher success rates compared to the **Two Point Crossover** technique.
+- Similarly, for the **16 board size**, the **Single Point Crossover** method outperformed the Two Point Crossover in terms of efficiency and effectiveness.
 
-Thanks for checking out 8 Queens!
+**As a result, it has been determined that the Single Point Crossover technique gives better results for the 8 Queens Problem. To reach this conclusion, each test was repeated at least five times for both crossover types.**
