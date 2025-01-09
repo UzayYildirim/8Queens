@@ -62,6 +62,25 @@ except:
     print("Invalid value - Using the default value. (2000 Maximum Iterations)")
     input_maxIterations = 2000
 
+try:
+    input_delay = input("Delay between iterations (seconds)? Press Enter for no delay, or enter a number: ")
+    iteration_delay = float(input_delay) if input_delay else 0
+except:
+    print("Invalid value - Using no delay")
+    iteration_delay = 0
+
+input_visual = input("Show visual board for each iteration? (yes/no, press Enter for no): ").lower()
+show_visual = input_visual == 'yes'
+
+input_elite = input("Use elitism? (yes/no, press Enter for yes): ").lower()
+use_elitism = input_elite != 'no'
+
+input_tournament = input("Tournament selection size (2-10, press Enter for 3): ")
+tournament_size = int(input_tournament) if input_tournament.isdigit() and 2 <= int(input_tournament) <= 10 else 3
+
+input_adaptive = input("Use adaptive mutation? (yes/no, press Enter for yes): ").lower()
+adaptive_mutation = input_adaptive != 'no'
+
 populationCount = queens * 150 # The population number is calculated according to user's given parameters.
 maximumFitness = (queens * (queens - 1)) / 2 # Maximum possible Fitness value. (28 for 8 Queens)
 mutationValue = 0.005 # The value to base the mutation on.
@@ -121,42 +140,37 @@ def createPopulation(populationSize = 100):
 	return population
 
 
-def getParents():	
-	parent1, parent2 = None, None
+def print_board(chromosome):
+    # Prints a visual representation of the chess board
+    print("\n  " + "-" * (queens * 2 + 1))
+    for i in range(queens):
+        row = "| "
+        for j in range(queens):
+            row += "Q " if chromosome[j] == i else ". "
+        print(row + "|")
+    print("  " + "-" * (queens * 2 + 1))
+
+def tournament_selection():
+    """Tournament selection for better parent selection"""
+    tournament = np.random.choice(population, tournament_size, replace=False)
+    return max(tournament, key=lambda x: x.fitness)
+
+def adaptiveMutationRate(best_fitness):
+    # Adjusts mutation rate based on population fitness
+    if adaptive_mutation:
+        return mutationValue * (1 - (best_fitness / maximumFitness))
+    return mutationValue
+
+def getParents():
+    if tournament_size > 0:
+        parent1 = tournament_selection()
+        parent2 = tournament_selection()
+        while parent2 == parent1:
+            parent2 = tournament_selection()
+        return parent1, parent2, np.sum([x.fitness for x in population])
     
-	# Parents are randomly selected based on probability of survival.
-	# To find the solution we need to normalize the Fitness value.
-	
-	sum_fitness = np.sum([x.fitness for x in population])
-	for each in population:
-		each.survival = each.fitness/(sum_fitness*1.0)
-
-	while True:
-		parent1_random = np.random.rand()
-		parent1_rn = [x for x in population if x.survival <= parent1_random]
-		try:
-			t = np.random.randint(len(parent1_rn))
-			parent1 = parent1_rn[t]
-			break
-		except:
-			pass
-
-	while True:
-		parent2_random = np.random.rand()
-		parent2_rn = [x for x in population if x.survival <= parent2_random]
-		try:
-			t = np.random.randint(len(parent2_rn))
-			parent2 = parent2_rn[t]
-			if parent2 != parent1:
-				break
-			else:
-				print ("< ! > Equal parents, re-iterating...")
-				continue
-		except:
-			continue
-
-	if parent1 is not None and parent2 is not None:
-		return parent1, parent2, sum_fitness
+    # Original parent selection logic as fallback
+    return original_getParents()
 
 def singlePoint_crossover(parent1, parent2): # Single-Point Crossover
 	n = len(parent1.order)
@@ -184,10 +198,10 @@ def twoPoint_crossover(parent1, parent2): # Two-Point Crossover
 	return child
 
 def mutate(child):
-	"""	
-	- According to genetic theory, mutation occurs when an abnormality occurs terminateing the crossover situation.
-	- Since a computer cannot detect such an anomaly, we can identify the probability of developing such a mutation ourselves.
-	"""
+
+# According to genetic theory, mutation occurs when an abnormality occurs terminating the crossover situation.
+# Since a computer cannot detect such an anomaly, we can identify the probability of developing such a mutation ourselves.
+
 	if child.survival != None:
 		if child.survival < mutationValue:
 			c = np.random.randint(8)
@@ -195,36 +209,62 @@ def mutate(child):
 	return child
 
 def geneticAlgorithm(iteration):
-	print ("[+] [+] [+] [+] " ,"Genetic Generation: >> #", int(iteration), " [+] [+] [+] [+] ")
-	newPopulation = []
-	for i in range(len(population)):
-		parent1, parent2, sum_fit = getParents()
-		# print ("Produced parents: ", parent1, parent2)
-		if crossoverType == "1":
-			child = singlePoint_crossover(parent1, parent2)
-		else:
-			child = twoPoint_crossover(parent1, parent2)
-		sum_fit += child.fitness
-		child.survival = child.fitness/(sum_fit*1.0)
-		if(mutationParams):
-			child = mutate(child)
-
-		newPopulation.append(child)
-	return newPopulation
+    print(f"\n{'='*20} Generation #{iteration} {'='*20}")
+    
+    # Calculate current best fitness
+    current_best = max(population, key=lambda x: x.fitness)
+    print(f"Current Best Fitness: {current_best.fitness}/{maximumFitness}")
+    
+    if show_visual:
+        print_board(current_best.order)
+    
+    newPopulation = []
+    
+    # Elitism: Keep the best individual
+    if use_elitism:
+        newPopulation.append(current_best)
+    
+    # Generate new population
+    while len(newPopulation) < len(population):
+        parent1, parent2, sum_fit = getParents()
+        
+        if crossoverType == 1:
+            child = singlePoint_crossover(parent1, parent2)
+        else:
+            child = twoPoint_crossover(parent1, parent2)
+        
+        # Adaptive mutation
+        current_mutation_rate = adaptiveMutationRate(current_best.fitness)
+        if mutationParams and np.random.random() < current_mutation_rate:
+            child = mutate(child)
+        
+        newPopulation.append(child)
+    
+    # Add delay if specified
+    if iteration_delay > 0:
+        time.sleep(iteration_delay)
+    
+    return newPopulation
 
 def terminate():
-	fitnessvals = [pos.fitness for pos in population]
-	max_value = np.max(fitnessvals)
-	print ("> Best Fitness value of this generation: ", max_value, " / ", maximumFitness)
-	print("________________________________________________________________________")
-	if maximumFitness in fitnessvals:
-		print("Done!")
-		beep()
-		return True
-	if maximumIteration == iteration:
-		print("The maximum number of iterations has been reached. Timeout.")
-		return True
-	return False
+    fitnessvals = [pos.fitness for pos in population]
+    max_value = np.max(fitnessvals)
+    avg_value = np.mean(fitnessvals)
+    
+    print(f"\nGeneration Statistics:")
+    print(f"Best Fitness: {max_value}/{maximumFitness}")
+    print(f"Average Fitness: {avg_value:.2f}")
+    print(f"Current Mutation Rate: {adaptiveMutationRate(max_value):.4f}")
+    print("_" * 50)
+    
+    if maximumFitness in fitnessvals:
+        print("\n*** Solution Found! ***")
+        beep()
+        return True
+    if maximumIteration == iteration:
+        print("\n*** Maximum iterations reached! ***")
+        return True
+    return False
 
 def beep():
 	print ("\a")
@@ -246,4 +286,4 @@ for each in population:
 
 time.sleep(4)
 
-input("Press Enter key to exit 8 Queens...")
+input("Press Enter key to exit...")
