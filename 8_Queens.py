@@ -141,7 +141,7 @@ def createPopulation(populationSize = 100):
 
 
 def print_board(chromosome):
-    # Prints a visual representation of the chess board
+    """Prints a visual representation of the chess board"""
     print("\n  " + "-" * (queens * 2 + 1))
     for i in range(queens):
         row = "| "
@@ -169,8 +169,16 @@ def getParents():
             parent2 = tournament_selection()
         return parent1, parent2, np.sum([x.fitness for x in population])
     
-    # Original parent selection logic as fallback
-    return original_getParents()
+    # Original parent selection logic (roulette wheel selection)
+    total_fitness = np.sum([x.fitness for x in population])
+    probabilities = [x.fitness/total_fitness for x in population]
+    
+    parent1 = np.random.choice(population, p=probabilities)
+    parent2 = np.random.choice(population, p=probabilities)
+    while parent2 == parent1:
+        parent2 = np.random.choice(population, p=probabilities)
+    
+    return parent1, parent2, total_fitness
 
 def singlePoint_crossover(parent1, parent2): # Single-Point Crossover
 	n = len(parent1.order)
